@@ -4,7 +4,7 @@ Data downloaded from https://github.com/Willembrinck/2021-TTQs and parsed into a
 This data is public, and has been computed from raw data extracted from an empirical experiment.
 "
 Class {
-	#name : #SKData,
+	#name : #SKExperimentalData,
 	#superclass : #Object,
 	#instVars : [
 		'reviewedResults',
@@ -18,7 +18,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-SKData class >> answers [
+SKExperimentalData class >> answers [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/answers.csv"
 
 	^ 'Task,Image,UserID,,,Answer,,,,
@@ -358,7 +358,7 @@ Task 14,seeker,participant-06,,,"The pc instance variable of the newContext obje
 ]
 
 { #category : #'as yet unclassified' }
-SKData class >> debuggingActions [
+SKExperimentalData class >> debuggingActions [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/debugging-actions.csv"
 
 	^ 'Task,Image,userID,Breakpoints Add,Breakpoint Rem,Steps,Methods modified,Methods added,Methods Removed,Queries Count,TimeTravel Count,Post-query filters count
@@ -698,7 +698,7 @@ Task 14,seeker,participant-06,0,0,0,0,0,0,28,2,2'
 ]
 
 { #category : #'as yet unclassified' }
-SKData class >> reviewedResults [
+SKExperimentalData class >> reviewedResults [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/reviewed-results.csv"
 
 	^ 'Task number,Task,Image,UserID,TaskGroup,First,Overall Acc,years_exp_pharo,months_exp_pharo9,seeker_usefullness_qualitative,seeker_intuitive_qualitative,conf_control,dif_control,conf_seeker,dif_seeker,Ans Acc Control,Ans Acc Seeker,Control Score,Seeker Score,Any Score,TotalExpYears
@@ -1017,7 +1017,7 @@ SKData class >> reviewedResults [
 ]
 
 { #category : #'as yet unclassified' }
-SKData class >> surveys [
+SKExperimentalData class >> surveys [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/survey.csv"
 
 	^ 'UserID,Years of experience using Pharo,Months of experience using Pharo 9.0,SeekerDebugger Evaluation [Usefulness of the tool],SeekerDebugger Evaluation [Intuitive usage],What is your confidence level for your answers on the Control-Image tasks?,What would be your perceived difficulty level for completing the Control-Image tasks?,What is your confidence level for your answers on the Seeker-Image tasks?,"What would be your perceived difficulty level for completing the Seeker-Image tasks, using SeekerDebugger?"
@@ -1056,7 +1056,7 @@ participant-23,5,1,Very good,Fair,2,5,3,2'
 ]
 
 { #category : #'as yet unclassified' }
-SKData class >> time [
+SKExperimentalData class >> time [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/time.csv"
 
 	^ 'Task,Image,userID,Time taken
@@ -1396,7 +1396,7 @@ Task 14,seeker,participant-06,13.12'
 ]
 
 { #category : #initialization }
-SKData >> initialize [
+SKExperimentalData >> initialize [
 	self parseReviewedResults.
 	self parseScore.	
 	self parseTimes.
@@ -1405,7 +1405,7 @@ SKData >> initialize [
 ]
 
 { #category : #parsing }
-SKData >> parseDebuggingActions [
+SKExperimentalData >> parseDebuggingActions [
 
 	| rawActions |
 	rawActions := ((self class debuggingActions splitOn: Character cr)
@@ -1430,7 +1430,7 @@ SKData >> parseDebuggingActions [
 ]
 
 { #category : #initialization }
-SKData >> parseReviewedResults [
+SKExperimentalData >> parseReviewedResults [
 	|mapping|
 	reviewedResults := ((self class reviewedResults splitOn: Character cr)
 		                    collect: [ :each | each splitOn: $, ])
@@ -1454,7 +1454,7 @@ SKData >> parseReviewedResults [
 ]
 
 { #category : #parsing }
-SKData >> parseScore [
+SKExperimentalData >> parseScore [
 
 	scores := Dictionary new.
 	reviewedResults keysAndValuesDo: [ :participant :results |
@@ -1466,7 +1466,7 @@ SKData >> parseScore [
 ]
 
 { #category : #parsing }
-SKData >> parseTimes [
+SKExperimentalData >> parseTimes [
 	|rawTimes|
 	rawTimes := ((self class time splitOn: Character cr) collect:[:each| each splitOn: $,]) groupedBy: [ :each| each at:  3].
 	rawTimes removeKey: 'userID'.
