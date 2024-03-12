@@ -1449,7 +1449,7 @@ SKExperimentalData >> buildTimeMetricForParticipantId: id [
 	^metric
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #statistics }
 SKExperimentalData >> countTaskOrder [
 
 	| groupedParticipants taskOrderCount |
@@ -1460,7 +1460,7 @@ SKExperimentalData >> countTaskOrder [
 	^ taskOrderCount
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #statistics }
 SKExperimentalData >> countTaskOrderPerSequence [
 
 	| orders count |
@@ -1546,7 +1546,7 @@ SKExperimentalData >> parseDebuggingActions [
 		actions at: participant put: groupedActions ]
 ]
 
-{ #category : #initialization }
+{ #category : #parsing }
 SKExperimentalData >> parseReviewedResults [
 	|mapping|
 	reviewedResults := ((self class reviewedResults splitOn: Character cr)
@@ -1554,14 +1554,14 @@ SKExperimentalData >> parseReviewedResults [
 		                   groupedBy: [ :each | each at: 4 ].
 	mapping := (reviewedResults removeKey: 'UserID') flattened.
 	
-	taskSequences := Dictionary new.	
+	taskSequences := OrderedDictionary new.	
 	reviewedResults keysAndValuesDo: [ :participant :results|
 		|sequence|
 		sequence := results first at: 6.
 		participants := taskSequences at: sequence ifAbsentPut:[OrderedCollection new].
 		participants add: participant].
 	
-	tasksOrder := Dictionary new.
+	tasksOrder := OrderedDictionary new.
 	reviewedResults keysAndValuesDo: [ :participant :results|
 		|order tasks|
 		order := results first at: 5.		
@@ -1628,7 +1628,7 @@ SKExperimentalData >> sequenceForParticipantId: id [
 		  (taskSequences at: k) includes: id ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #model }
 SKExperimentalData >> taskOrderForParticipantId: id [
 
 	^ (reviewedResults at: id) first at: 5
