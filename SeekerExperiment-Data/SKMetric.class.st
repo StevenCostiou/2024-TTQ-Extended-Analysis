@@ -24,6 +24,11 @@ SKMetric >> controlData: anObject [
 	controlData := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+SKMetric >> meanDifference [
+	^seekerData average - controlData average
+]
+
 { #category : #accessing }
 SKMetric >> name [
 
