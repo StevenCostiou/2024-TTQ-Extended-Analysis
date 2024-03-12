@@ -12,7 +12,8 @@ Class {
 		'tasksOrder',
 		'scores',
 		'times',
-		'actions'
+		'actions',
+		'participants'
 	],
 	#category : #'SeekerExperiment-Data'
 }
@@ -1395,12 +1396,128 @@ Task 12,seeker,participant-06,22.80
 Task 14,seeker,participant-06,13.12'
 ]
 
+{ #category : #statistics }
+SKExperimentalData >> actionsControlAverages [
+	^participants collect: #actionsControlAverage
+]
+
+{ #category : #statistics }
+SKExperimentalData >> actionsSeekerAverages [
+	^participants collect: #actionsSeekerAverage
+]
+
+{ #category : #metrics }
+SKExperimentalData >> buildActionMetricForParticipantId: id [ 
+	| controlActions seekerActions metric |
+	controlActions := SKData new.
+	controlActions values: ((actions at: id) at: 'control') first.
+	seekerActions := SKData new.
+	seekerActions values: ((actions at: id) at: 'seeker') first.
+	metric := SKMetric new.
+	metric name: 'actions'.
+	metric controlData: controlActions.
+	metric seekerData: seekerActions.
+	^metric
+]
+
+{ #category : #model }
+SKExperimentalData >> buildParticipants [
+
+	participants := self participantsIds collect: [ :p |
+		                | participant |
+		                participant := SKParticipant new.
+		                participant id: p.
+		                participant time: (self buildTimeMetricForParticipantId: p).
+		                participant actions: (self buildActionMetricForParticipantId: p).
+                      participant sequence: (self sequenceForParticipantId: p).
+							participant order: (self taskOrderForParticipantId: p).
+		                participant ]
+]
+
+{ #category : #metrics }
+SKExperimentalData >> buildTimeMetricForParticipantId: id [
+
+	| controlTimes seekerTimes metric |
+	controlTimes := SKData new.
+	controlTimes values: ((times at: id) at: 'control') first.
+	seekerTimes := SKData new.
+	seekerTimes values: ((times at: id) at: 'seeker') first.
+	metric := SKMetric new.
+	metric name: 'time'.
+	metric controlData: controlTimes.
+	metric seekerData: seekerTimes.
+	^metric
+]
+
+{ #category : #'as yet unclassified' }
+SKExperimentalData >> countTaskOrder [
+
+	| groupedParticipants taskOrderCount |
+	taskOrderCount := OrderedDictionary new.
+	groupedParticipants := (participants groupedBy: #order). 
+	groupedParticipants keys asSortedCollection do: [ :k |
+		taskOrderCount at: k put: (groupedParticipants at: k) size ].
+	^ taskOrderCount
+]
+
+{ #category : #'as yet unclassified' }
+SKExperimentalData >> countTaskOrderPerSequence [
+
+	| orders count |
+	orders := Dictionary new.
+	taskSequences keysAndValuesDo: [ :seq :p |
+		orders at: seq put: (p collect: [ :each |
+				 (participants detect: [ :part | part id = each ]) order ]) ].
+
+	count := Dictionary new.
+	orders keysAndValuesDo: [ :seq :c |
+		| orderCount |
+		orderCount := Dictionary new.
+		c asSet do: [ :o | orderCount at: o put: (c count: [ :e | e = o ]) ].
+		count at: seq put: orderCount ].
+	^ count
+]
+
+{ #category : #export }
+SKExperimentalData >> export: data [
+
+	^ String streamContents: [ :s |
+		  data do: [ :float |
+			  s << float printString.
+			  s cr ] ]
+]
+
+{ #category : #export }
+SKExperimentalData >> exportActionsControlAverages [
+
+	^ self export: self actionsControlAverages
+]
+
+{ #category : #export }
+SKExperimentalData >> exportActionsSeekerAverages [
+
+	^ self export: self actionsSeekerAverages
+]
+
+{ #category : #export }
+SKExperimentalData >> exportTimeControlAverages [
+
+	^ self export: self timeControlAverages
+]
+
+{ #category : #export }
+SKExperimentalData >> exportTimeSeekerAverages [
+
+	^ self export: self timeSeekerAverages
+]
+
 { #category : #initialization }
 SKExperimentalData >> initialize [
 	self parseReviewedResults.
 	self parseScore.	
 	self parseTimes.
-	self parseDebuggingActions
+	self parseDebuggingActions.
+	self buildParticipants 
 	
 ]
 
@@ -1439,7 +1556,7 @@ SKExperimentalData >> parseReviewedResults [
 	
 	taskSequences := Dictionary new.	
 	reviewedResults keysAndValuesDo: [ :participant :results|
-		|sequence participants|
+		|sequence|
 		sequence := results first at: 6.
 		participants := taskSequences at: sequence ifAbsentPut:[OrderedCollection new].
 		participants add: participant].
@@ -1460,8 +1577,8 @@ SKExperimentalData >> parseScore [
 	reviewedResults keysAndValuesDo: [ :participant :results |
 		| groupedResults c s |
 		groupedResults := results groupedBy: [ :each | each at: 3 ].
-		c := (groupedResults at: 'control') collect: [ :each | each at: 16 ].
-		s := (groupedResults at: 'seeker') collect: [ :each | each at: 17 ].
+		c := (groupedResults at: 'control') collect: [ :each | (each at: 16) asNumber ].
+		s := (groupedResults at: 'seeker') collect: [ :each | (each at: 17) asNumber ].
 		scores at: participant put: {('control' -> c). 	('seeker' -> s) } ]
 ]
 
@@ -1478,8 +1595,51 @@ SKExperimentalData >> parseTimes [
 		groupedTimes at: 'control' put: OrderedCollection new.
 		groupedTimes at: 'seeker' put: OrderedCollection new.
 		groupedResults keysAndValuesDo: [ :controlOrSeeker :res|		
-			(groupedTimes at: controlOrSeeker) add: (res collect: #last) ].
+			(groupedTimes at: controlOrSeeker) add: ((res collect: #last) collect: #asNumber) ].
 		times at: participant put: groupedTimes.
 		
 		 ]
+]
+
+{ #category : #accessing }
+SKExperimentalData >> participantsIds [
+
+	^ reviewedResults keys asSortedCollection
+]
+
+{ #category : #statistics }
+SKExperimentalData >> seekerTimeBySequences [
+	self halt.	
+	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p timeControlAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p timeSeekerAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p timeControlAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p timeSeekerAverage]).
+	
+	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p actionsControlAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p actionsSeekerAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p actionsControlAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p actionsSeekerAverage]).
+]
+
+{ #category : #metrics }
+SKExperimentalData >> sequenceForParticipantId: id [
+
+	^ taskSequences keys detect: [ :k |
+		  (taskSequences at: k) includes: id ]
+]
+
+{ #category : #'as yet unclassified' }
+SKExperimentalData >> taskOrderForParticipantId: id [
+
+	^ (reviewedResults at: id) first at: 5
+]
+
+{ #category : #statistics }
+SKExperimentalData >> timeControlAverages [
+	^participants collect: #timeControlAverage
+]
+
+{ #category : #statistics }
+SKExperimentalData >> timeSeekerAverages [
+	^participants collect: #timeSeekerAverage
 ]
