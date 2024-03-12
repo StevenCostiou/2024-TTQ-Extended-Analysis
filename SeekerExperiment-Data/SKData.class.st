@@ -6,6 +6,14 @@ This data is public, and has been computed from raw data extracted from an empir
 Class {
 	#name : #SKData,
 	#superclass : #Object,
+	#instVars : [
+		'reviewedResults',
+		'taskSequences',
+		'tasksOrder',
+		'scores',
+		'times',
+		'actions'
+	],
 	#category : #'SeekerExperiment-Data'
 }
 
@@ -1385,4 +1393,93 @@ Task 06,seeker,participant-06,7.58
 Task 08,seeker,participant-06,3.77
 Task 12,seeker,participant-06,22.80
 Task 14,seeker,participant-06,13.12'
+]
+
+{ #category : #initialization }
+SKData >> initialize [
+	self parseReviewedResults.
+	self parseScore.	
+	self parseTimes.
+	self parseDebuggingActions
+	
+]
+
+{ #category : #parsing }
+SKData >> parseDebuggingActions [
+
+	| rawActions |
+	rawActions := ((self class debuggingActions splitOn: Character cr)
+		               collect: [ :each | each splitOn: $, ]) groupedBy: [
+		              :each | each at: 3 ].
+	rawActions removeKey: 'userID'.
+	actions := Dictionary new.
+	rawActions keysAndValuesDo: [ :participant :results |
+		| groupedResults groupedActions |
+		groupedResults := results groupedBy: [ :each | each at: 2 ].
+		groupedActions := Dictionary new.
+		groupedActions at: 'control' put: OrderedCollection new.
+		groupedActions at: 'seeker' put: OrderedCollection new.
+		
+		groupedResults keysAndValuesDo: [ :controlOrSeeker :res |
+			(groupedActions at: controlOrSeeker) add: (res collect: [ :each |
+					 | act |
+					 act := (each copyFrom: 4 to: 12) select: [ :s |
+						        (#( '' '0' ) includes: s) not ].
+					 act inject: 0 into: [ :sum :next | sum + next asNumber ] ]) ].
+		actions at: participant put: groupedActions ]
+]
+
+{ #category : #initialization }
+SKData >> parseReviewedResults [
+	|mapping|
+	reviewedResults := ((self class reviewedResults splitOn: Character cr)
+		                    collect: [ :each | each splitOn: $, ])
+		                   groupedBy: [ :each | each at: 4 ].
+	mapping := (reviewedResults removeKey: 'UserID') flattened.
+	
+	taskSequences := Dictionary new.	
+	reviewedResults keysAndValuesDo: [ :participant :results|
+		|sequence participants|
+		sequence := results first at: 6.
+		participants := taskSequences at: sequence ifAbsentPut:[OrderedCollection new].
+		participants add: participant].
+	
+	tasksOrder := Dictionary new.
+	reviewedResults keysAndValuesDo: [ :participant :results|
+		|order tasks|
+		order := results first at: 5.		
+		tasks := results collect: [:each| each first].
+		tasks size = 10 ifTrue:[	tasksOrder at: order ifAbsentPut:[tasks]]]
+
+]
+
+{ #category : #parsing }
+SKData >> parseScore [
+
+	scores := Dictionary new.
+	reviewedResults keysAndValuesDo: [ :participant :results |
+		| groupedResults c s |
+		groupedResults := results groupedBy: [ :each | each at: 3 ].
+		c := (groupedResults at: 'control') collect: [ :each | each at: 16 ].
+		s := (groupedResults at: 'seeker') collect: [ :each | each at: 17 ].
+		scores at: participant put: {('control' -> c). 	('seeker' -> s) } ]
+]
+
+{ #category : #parsing }
+SKData >> parseTimes [
+	|rawTimes|
+	rawTimes := ((self class time splitOn: Character cr) collect:[:each| each splitOn: $,]) groupedBy: [ :each| each at:  3].
+	rawTimes removeKey: 'userID'.
+	times := Dictionary new.
+	rawTimes keysAndValuesDo: [ :participant :results|
+		|groupedResults groupedTimes|
+		groupedResults := results groupedBy: [ :each| each at: 2].		
+		groupedTimes := Dictionary new.
+		groupedTimes at: 'control' put: OrderedCollection new.
+		groupedTimes at: 'seeker' put: OrderedCollection new.
+		groupedResults keysAndValuesDo: [ :controlOrSeeker :res|		
+			(groupedTimes at: controlOrSeeker) add: (res collect: #last) ].
+		times at: participant put: groupedTimes.
+		
+		 ]
 ]
