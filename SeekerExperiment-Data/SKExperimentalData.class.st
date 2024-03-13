@@ -1521,6 +1521,22 @@ SKExperimentalData >> initialize [
 	
 ]
 
+{ #category : #statistics }
+SKExperimentalData >> jacknifeTestTaskGroups [
+	"Jacknife testing on tasks groups"
+
+	| selection controls treatements comparisons |
+	comparisons := Dictionary new.
+	tasksOrder keysDo: [ :k |
+		selection := participants select: [ :p | p order ~= k ].
+		controls := selection collect: #timeControlAverage.
+		treatements := selection collect: #timeSeekerAverage.
+		comparisons at: k put:{
+				(self export: controls).
+				(self export: treatements) } ].
+	^ comparisons
+]
+
 { #category : #parsing }
 SKExperimentalData >> parseDebuggingActions [
 
