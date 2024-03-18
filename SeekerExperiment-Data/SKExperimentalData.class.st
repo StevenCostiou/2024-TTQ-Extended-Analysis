@@ -18,7 +18,7 @@ Class {
 	#category : #'SeekerExperiment-Data'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #datas }
 SKExperimentalData class >> answers [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/answers.csv"
 
@@ -358,7 +358,7 @@ Task 12,seeker,participant-06,,,"From seeker 0 instance variables of the object 
 Task 14,seeker,participant-06,,,"The pc instance variable of the newContext object values during this test are:  nil 33 34 nill 25 nill 28 29 nill 47 48 55 56 57 58 35  Using seeker: right click in the source pane SeekerQueries >  All the assignement of instances variables, of objects whoses classe name matches selection. Here with the filter we can filter with pc and see the different values of pc during this test.",,,,'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #datas }
 SKExperimentalData class >> debuggingActions [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/debugging-actions.csv"
 
@@ -698,7 +698,7 @@ Task 12,seeker,participant-06,0,0,0,0,0,0,24,2,0
 Task 14,seeker,participant-06,0,0,0,0,0,0,28,2,2'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #datas }
 SKExperimentalData class >> reviewedResults [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/reviewed-results.csv"
 
@@ -1017,7 +1017,7 @@ SKExperimentalData class >> reviewedResults [
 13,Task 13,seeker,participant-24,g2a,ControlFirst,0.8,10,10,Very good,Satisfactory,3,4,3,3,,0.8,,,,10.83333333'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #datas }
 SKExperimentalData class >> surveys [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/survey.csv"
 
@@ -1056,7 +1056,7 @@ participant-16,2,12,Very good,Satisfactory,3,4,4,3
 participant-23,5,1,Very good,Fair,2,5,3,2'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #datas }
 SKExperimentalData class >> time [
 	"https://github.com/Willembrinck/2021-TTQs/blob/main/experiment-results/time.csv"
 
