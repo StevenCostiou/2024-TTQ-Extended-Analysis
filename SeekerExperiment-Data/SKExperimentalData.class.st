@@ -15,7 +15,8 @@ Class {
 		'actions',
 		'participants',
 		'averageActionsByType',
-		'queriesPerTask'
+		'queriesPerTask',
+		'nbQueriesPerTask'
 	],
 	#category : #'SeekerExperiment-Data'
 }
@@ -707,6 +708,26 @@ Task 06,seeker,participant-06,0,0,0,0,0,0,14,4,2
 Task 08,seeker,participant-06,0,0,0,0,0,0,2,0,1
 Task 12,seeker,participant-06,0,0,0,0,0,0,24,2,0
 Task 14,seeker,participant-06,0,0,0,0,0,0,28,2,2'
+]
+
+{ #category : #datas }
+SKExperimentalData class >> numberOfQueriesPerTasks [
+	"https://github.com/StevenCostiou/2024-TTQ-Extended-Analysis/tree/main/data"
+
+	^ 'Task 01,6,4,2,4,18,2,6,2,4,4,2,6,0,2,2
+Task 02,2,4,10,0,10,10,0,28,6,0
+Task 03,6,4,6,6,4,4,2,4,6,2,2,2,2,6,2
+Task 04,2,2,8,14,4,4,4,6,2,2,2,44,4
+Task 05,2,2,2,4,2,4,2,2,2,2,2,2,8,2
+Task 06,4,2,6,2,2,2,20,14
+Task 07,2,2,2,2,4,2,2,2,4,2,2,2
+Task 08,2,2,2,10,2,2,2,12,2
+Task 09,2,4,2,10,2,2,2,6,14,4,2
+Task 10,4,2,2,8,2,4,10,2,4
+Task 11,2,2,14,16,2,10,4,6,2,2,2
+Task 12,2,10,6,14,2,4,18,20,24
+Task 13,4,36,4,2,8,2,8,2,2,4,6,6,4
+Task 14,2,2,10,4,2,2,2,4,28'
 ]
 
 { #category : #datas }
@@ -1704,7 +1725,8 @@ SKExperimentalData >> initialize [
 	self parseDebuggingActions.
 	self buildParticipants.
 	self parseAverageActionByTTQSequence.
-	self parseQueriesPerTask
+	self parseQueriesPerTask.
+	self parseNumberOfQueriesPerTask
 	
 ]
 
@@ -1761,6 +1783,22 @@ SKExperimentalData >> parseDebuggingActions [
 						        (#( '' '0' ) includes: s) not ].
 					 act inject: 0 into: [ :sum :next | sum + next asNumber ] ]) ].
 		actions at: participant put: groupedActions ]
+]
+
+{ #category : #parsing }
+SKExperimentalData >> parseNumberOfQueriesPerTask [
+
+	| raw |
+	raw := ((self class numberOfQueriesPerTasks splitOn: Character cr)
+		        collect: [ :each | each splitOn: $, ]) groupedBy: [ :each |
+		       each first ].
+
+	nbQueriesPerTask := OrderedDictionary new.
+
+	raw keysAndValuesDo: [ :task :col |
+		nbQueriesPerTask
+			at: task
+			put: (col first copyFrom: 2 to: col first size) ]
 ]
 
 { #category : #parsing }
