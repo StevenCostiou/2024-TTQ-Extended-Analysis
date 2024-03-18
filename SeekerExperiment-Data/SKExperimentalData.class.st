@@ -13,7 +13,8 @@ Class {
 		'scores',
 		'times',
 		'actions',
-		'participants'
+		'participants',
+		'averageActionsByType'
 	],
 	#category : #'SeekerExperiment-Data'
 }
@@ -1544,6 +1545,20 @@ SKExperimentalData >> jacknifeTestTaskGroups [
 				(self export: controls).
 				(self export: treatements) } ].
 	^ comparisons
+]
+
+{ #category : #parsing }
+SKExperimentalData >> parseAverageActionByTTQSequence [
+
+	| raw |
+	raw := ((self class averageActionByTTQSequence splitOn: Character cr)
+		        collect: [ :each | each splitOn: $, ]) groupedBy: [ :each |
+		       each first ].
+	averageActionsByType := Dictionary new.
+	raw keysAndValuesDo: [ :action :col |
+		averageActionsByType
+			at: action
+			put: ((col first select: [ :e | e size < 3 ]) collect: #asNumber) ]
 ]
 
 { #category : #parsing }
