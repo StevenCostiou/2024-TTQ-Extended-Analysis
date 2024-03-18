@@ -14,7 +14,8 @@ Class {
 		'times',
 		'actions',
 		'participants',
-		'averageActionsByType'
+		'averageActionsByType',
+		'queriesPerTask'
 	],
 	#category : #'SeekerExperiment-Data'
 }
@@ -1558,7 +1559,7 @@ SKExperimentalData >> parseAverageActionByTTQSequence [
 	raw keysAndValuesDo: [ :action :col |
 		averageActionsByType
 			at: action
-			put: ((col first select: [ :e | e size < 3 ]) collect: #asNumber) ]
+			put: ((col first select: [ :e | e size < 4 ]) collect: #asNumber) ]
 ]
 
 { #category : #parsing }
