@@ -1612,6 +1612,17 @@ SKExperimentalData >> actionsSeekerAverages [
 	^participants collect: #actionsSeekerAverage
 ]
 
+{ #category : #statistics }
+SKExperimentalData >> basicTest [
+
+	self actionsSeekerAverages average asFloat.
+	self actionsControlAverages average asFloat.
+	self timeSeekerAverages average asFloat.
+	self timeControlAverages average asFloat.
+	self scoreSeekerAverages average asFloat.
+	self scoreSeekerAverages average asFloat
+]
+
 { #category : #metrics }
 SKExperimentalData >> buildActionMetricForParticipantId: id [ 
 	| controlActions seekerActions metric |
@@ -1636,8 +1647,23 @@ SKExperimentalData >> buildParticipants [
 		                participant time: (self buildTimeMetricForParticipantId: p).
 		                participant actions: (self buildActionMetricForParticipantId: p).
                       participant sequence: (self sequenceForParticipantId: p).
+							 participant score: (self buildScoreMetricForParticipantId: p).
 							participant order: (self taskOrderForParticipantId: p).
 		                participant ]
+]
+
+{ #category : #metrics }
+SKExperimentalData >> buildScoreMetricForParticipantId: id [ 
+	| controlScore seekerScore metric |
+	controlScore := SKData new.
+	controlScore values: ((scores at: id) first value ).
+	seekerScore := SKData new.
+	seekerScore values: ((scores at: id) second value).
+	metric := SKMetric new.
+	metric name: 'score'.
+	metric controlData: controlScore.
+	metric seekerData: seekerScore.
+	^metric
 ]
 
 { #category : #metrics }
@@ -1706,6 +1732,41 @@ SKExperimentalData >> exportActionsSeekerAverages [
 ]
 
 { #category : #export }
+SKExperimentalData >> exportTaskGroupOrderAnalysisToLatex [
+
+	| jackKnifeGroups orderedGroups out |
+	jackKnifeGroups := self jacknifeTestTaskGroups.
+	
+	orderedGroups := OrderedDictionary new.
+	jackKnifeGroups keys asSortedCollection collect: [ :k |
+		orderedGroups at: k put: ((jackKnifeGroups at: k) collect: [ :v |
+				 SKData new
+					 values: v;
+					 yourself ]) ].
+			
+	out := String streamContents: [ :str|
+				orderedGroups keysAndValuesDo: [ :group :values|
+					|ratio|
+					ratio := 100 * (1 - (values second average / values first average) asFloat).
+					str << group.
+					str space.
+					str << '&'.
+					str space.
+					(ratio > 0 ifTrue:  [str <<  '+']).
+					str << ratio rounded printString.
+					str << '\%'.
+					str space.
+					str << '&'.
+					str space.
+					str << '\\'.
+					str cr
+					
+					 ]
+				 ].
+	^out contents
+]
+
+{ #category : #export }
 SKExperimentalData >> exportTimeControlAverages [
 
 	^ self export: self timeControlAverages
@@ -1732,6 +1793,22 @@ SKExperimentalData >> initialize [
 
 { #category : #statistics }
 SKExperimentalData >> jacknifeTestTaskGroups [
+	"Jacknife testing on tasks groups"
+
+	| selection controls treatements comparisons |
+	comparisons := Dictionary new.
+	tasksOrder keysDo: [ :k |
+		selection := participants select: [ :p | p order ~= k ].
+		controls := selection collect: #timeControlAverage.
+		treatements := selection collect: #timeSeekerAverage.
+		comparisons at: k put:{
+				controls.
+				treatements } ].
+	^ comparisons
+]
+
+{ #category : #statistics }
+SKExperimentalData >> jacknifeTestTaskGroupsString [
 	"Jacknife testing on tasks groups"
 
 	| selection controls treatements comparisons |
@@ -1904,6 +1981,17 @@ SKExperimentalData >> queryIdForClass: aSeekerClassName [
 	^dict at: aSeekerClassName
 ]
 
+{ #category : #'as yet unclassified' }
+SKExperimentalData >> scoresControlAverages [
+
+	^ participants collect: #scoreControlAverage
+]
+
+{ #category : #'as yet unclassified' }
+SKExperimentalData >> scoresSeekerAverages [
+	^participants collect: #scoreSeekerAverage
+]
+
 { #category : #statistics }
 SKExperimentalData >> seekerTimeBySequences [
 	self halt.	
@@ -1916,6 +2004,11 @@ SKExperimentalData >> seekerTimeBySequences [
 	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p actionsSeekerAverage]).
 	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p actionsControlAverage]).
 	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p actionsSeekerAverage]).
+	
+	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p scoreControlAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'ControlFirst') collect:[:p| p scoreSeekerAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p scoreControlAverage]).
+	self export: (((participants groupedBy: #sequence) at: 'SeekerFirst') collect:[:p| p scoreSeekerAverage]).
 ]
 
 { #category : #metrics }

@@ -30,6 +30,11 @@ SKData >> stdev [
 	^values stdev
 ]
 
+{ #category : #'primitives - plugin' }
+SKData >> sum [
+	^values sum
+]
+
 { #category : #accessing }
 SKData >> values [
 

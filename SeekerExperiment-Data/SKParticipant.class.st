@@ -23,12 +23,12 @@ SKParticipant >> actions: anObject [
 
 { #category : #statistics }
 SKParticipant >> actionsControlAverage [
-	^actions controlData average asFloat
+	^actions controlData sum
 ]
 
 { #category : #statistics }
 SKParticipant >> actionsSeekerAverage [
-	^actions seekerData average asFloat
+	^actions seekerData sum
 ]
 
 { #category : #accessing }
@@ -69,12 +69,13 @@ SKParticipant >> score: anObject [
 
 { #category : #statistics }
 SKParticipant >> scoreControlAverage [
-	^score controlData average
+
+	^ score controlData values occurrencesOf: 1
 ]
 
 { #category : #statistics }
 SKParticipant >> scoreSeekerAverage [
-	^score seekerData average
+	^score seekerData values occurrencesOf: 1
 ]
 
 { #category : #accessing }
@@ -96,10 +97,10 @@ SKParticipant >> time: aSKMetric [
 
 { #category : #statistics }
 SKParticipant >> timeControlAverage [
-	^time controlData average
+	^time controlData sum
 ]
 
 { #category : #statistics }
 SKParticipant >> timeSeekerAverage [
-	^time seekerData average
+	^time seekerData sum
 ]
