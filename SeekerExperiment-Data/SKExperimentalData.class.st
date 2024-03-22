@@ -1880,6 +1880,30 @@ SKExperimentalData >> participantsIds [
 	^ reviewedResults keys asSortedCollection
 ]
 
+{ #category : #model }
+SKExperimentalData >> queryIdForClass: aSeekerClassName [
+
+	| dict |
+	dict := Dictionary new.
+	dict at: 'SkAllMessageSendsLC' put: 'I.1'.
+	dict at: 'SkAllMessageSendsWithSelectorLC' put: 'I.2'.
+	dict at: 'SkAllReceivedMessagesLC' put: 'I.3'.
+	
+	dict at: 'SkAllInstanceCreationsLC' put: 'II.1'.
+	dict at: 'SkAllInstanceCreationsOfClassLC' put: 'II.2'.	
+	dict at: 'SkAllInstanceCreationsOfExceptionLC' put: 'II.3'.
+	
+	dict at: 'SkChangesOfAnyVariableLC' put: 'III.1'.
+	dict at: 'SkChangesOfVariableByNameLC' put: 'III.2'.
+	dict at: 'SkChangesOfAnyObjectOfClassLC' put: 'III.3'.	
+	
+	dict at: 'SkChangesOfSelfLC' put: 'IV.1'.	
+	dict at: 'SkChangesOfObjectLC' put: 'IV.2'.	
+	dict at: 'SkChangesOfInstanceVariableLC' put: 'IV.3'.
+	
+	^dict at: aSeekerClassName
+]
+
 { #category : #statistics }
 SKExperimentalData >> seekerTimeBySequences [
 	self halt.	
@@ -1905,6 +1929,68 @@ SKExperimentalData >> sequenceForParticipantId: id [
 SKExperimentalData >> taskOrderForParticipantId: id [
 
 	^ (reviewedResults at: id) first at: 5
+]
+
+{ #category : #charts }
+SKExperimentalData >> taskQueriesKiviat [
+
+	| canvas kiviat names taskGroups lb|
+	canvas := RSCanvas new.
+	names := queriesPerTask keys asSortedCollection.
+	taskGroups := {
+		              #( 'Task 01' 'Task 02' ).
+		              #( 'Task 03' 'Task 04' ).
+		              #( 'Task 05' 'Task 06' 'Task 07' 'Task 08' ).
+		              #( 'Task 09' 'Task 10' ).
+		              #( 'Task 11' 'Task 12' ).
+		              #( 'Task 13' 'Task 14' ) }.
+
+
+	taskGroups do: [ :group |
+		|title|
+		title := WriteStream on: String new. 
+		kiviat := RSKiviat new.
+		group do: [ :task |
+			| data  |
+		title << task.
+		task = group last ifFalse:[title << ', '].
+			
+			data := queriesPerTask collect: [ :e |
+				        | col |
+				        col := e at: task.						
+				        col ifNotEmpty: [ col sum ] ifEmpty: [ 0 ] ].
+			kiviat addRow: (names collect: [ :k | data at: k ]).
+			kiviat axisNames: (names collect: [ :q | self queryIdForClass: q ]).
+			
+			
+			].
+		kiviat usePolygonBorder.
+		kiviat useDots.
+		
+		lb := RSLegend new.
+		lb container: canvas.
+	kiviat values doWithIndex: [ :array :index | 		
+		lb text: (group at: index) withBoxColor: (kiviat palette scale: array).
+	].
+	lb legendDo: [ :s | s scaleBy: 2; withBorder; padding: 10 ].
+	lb location above.
+	lb build.		
+		
+		canvas add: (kiviat asShapeFor: title contents)  ].
+canvas nodes @ (RSLabeled new 
+		shapeBuilder: [:model | 
+			RSLabel new 
+				color: 'black'; 
+				fontSize: 12; 
+				text: model;
+				yourself]).
+			
+
+	RSGridLayout new
+		gapSize: 5;
+		on: canvas nodes.
+canvas @ RSCanvasController.
+	^ canvas
 ]
 
 { #category : #statistics }
