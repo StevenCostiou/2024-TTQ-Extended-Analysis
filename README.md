@@ -17,8 +17,8 @@ We provide a reproduction package to reproduce our statistical analysis.
 
 To reproduce our results:
 - download and install Jasp https://jasp-stats.org/
-- download the reproduction.jasp from our repo
-- open the reproduction.jasp file with Jasp
+- download the replication.jasp file from our repo
+- open the replication.jasp file with Jasp
 
 In addition, we provide the organized data used in the jasp analysis in the form of a csv file.
   
